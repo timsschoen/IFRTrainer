@@ -2,7 +2,7 @@ import { Stage, Container, Graphics, Text } from '@pixi/react';
 import React, { useCallback, useState, useRef, Component } from 'react'
 import * as PIXI from 'pixi.js'
 
-function AttitudeIndicator({pitch, bank, slip}) {
+function AttitudeIndicator({x, y, pitch, bank, slip}) {
   
   const drawWidth = 800;
   const drawHeight = 800; 
@@ -19,6 +19,7 @@ function AttitudeIndicator({pitch, bank, slip}) {
   const drawPitchLines = useCallback((g) => {
 
     g.clear();
+    g.removeChildren();
 
     g.lineStyle(1, 0xffffff);
 
@@ -171,16 +172,14 @@ function AttitudeIndicator({pitch, bank, slip}) {
   }, []);
 
   return (
-    <Container >
-        <Container x={500} y={500}>          
+        <Container x={x} y={y}>          
             <Container position={getAttitudeIndicatorPosition()} angle={-bank}>           
               <Graphics draw={drawHorizon} />         
               <Graphics draw={drawPitchLines} />  
             </Container>            
             <Graphics draw={drawFixedSymbols} />
             <Graphics angle={-bank} draw={drawRollScale} />
-        </Container>        
-    </Container>
+        </Container>
   );
 }
 
