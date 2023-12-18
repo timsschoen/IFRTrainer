@@ -1,16 +1,9 @@
 import { Stage, Container, Graphics, Text } from '@pixi/react';
-import React, { useCallback, useState, useRef } from 'react'
+import React, { useCallback, useState, useRef, Component } from 'react'
 import * as PIXI from 'pixi.js'
 
-function AttitudeIndicator() {
-
-  const [pitch, setPitch] = useState(10);
-  const [bank, setBank] = useState(10);
+function AttitudeIndicator({pitch, bank, slip}) {
   
-  const pitchRef = useRef();
-  
-  pitchRef.current = pitch;
-
   const drawWidth = 800;
   const drawHeight = 800; 
 
@@ -29,36 +22,58 @@ function AttitudeIndicator() {
 
     g.lineStyle(1, 0xffffff);
 
-    var centerPitch = Math.round(pitchRef.current/2.5)*2.5; 
+    var centerPitch = Math.round(pitch/2.5)*2.5; 
     for(var i = -10; i <= 10; i++)
     {
-      var pitch = centerPitch + i*2.5;
-      var y = -pitch*pixelPerDegreePitch;
+      var currPitch = centerPitch + i*2.5;
+      var y = -currPitch*pixelPerDegreePitch;
 
-      if(pitch === 0)
+      if(currPitch === 0)
         continue; 
 
-      if (pitch > 80 || pitch < -80)
+      if (currPitch > 80 || currPitch < -80)
         continue;
 
-      if(pitch % 10 === 0)
+      if(currPitch % 10 === 0)
       {
         g.moveTo( - 60,  + y);
         g.lineTo( + 60,  + y);
+
+        var text = new PIXI.Text(currPitch.toString(), {
+            fontFamily: 'Arial',
+            fontSize: 12,
+            fill: 0xffffff,
+            align: 'center',
+        });
+        text.x = -65;
+        text.y = y;
+        text.anchor.set(1, 0.5);
+        g.addChild(text);
+
+        var text2 = new PIXI.Text(currPitch.toString(), {
+          fontFamily: 'Arial',
+          fontSize: 12,
+          fill: 0xffffff,
+          align: 'center',
+        });
+        text2.x = 65;
+        text2.y = y;
+        text2.anchor.set(0, 0.5);
+        g.addChild(text2);
       }
-      else if(pitch % 5 === 0 && pitch <= 45 && pitch >= -25)
+      else if(currPitch % 5 === 0 && currPitch <= 45 && currPitch >= -25)
       {
         g.moveTo( - 40,  + y);
         g.lineTo( + 40,  + y);
       }
-      else if (pitch <= 20 && pitch >= -20 )
+      else if (currPitch <= 20 && currPitch >= -20 )
       {        
         g.moveTo( - 15,  + y);
         g.lineTo( + 15,  + y);
       }
     }    
 
-  }, []);
+  }, [pitch]);
 
   const drawHorizon = useCallback((g) => {
 
@@ -105,8 +120,23 @@ function AttitudeIndicator() {
     g.drawPolygon([new PIXI.Point(0,-rollScaleDist), new PIXI.Point(-10,-rollScaleDist+20), new PIXI.Point(10,-rollScaleDist+20)]);
     g.endFill();
     
+    // slip indicator  
+    g.lineStyle(1, 0xfff);
+    g.beginFill(0xffffff, 1);    
+    g.drawPolygon([
+      new PIXI.Point(-11 + (rollScaleDist-22)*Math.sin(slip*Math.PI/180),
+        -(rollScaleDist-22)*Math.cos(slip*Math.PI/180)), 
+      new PIXI.Point(11 + (rollScaleDist-22)*Math.sin(slip*Math.PI/180),
+        -(rollScaleDist-22)*Math.cos(slip*Math.PI/180)), 
+      new PIXI.Point(13 + (rollScaleDist-27)*Math.sin(slip*Math.PI/180),
+        -(rollScaleDist-27)*Math.cos(slip*Math.PI/180)), 
+      new PIXI.Point(-13 + (rollScaleDist-27)*Math.sin(slip*Math.PI/180),
+        -(rollScaleDist-27)*Math.cos(slip*Math.PI/180))
+    ]);
+    g.endFill();
+    
 
-  }, []);
+  }, [slip]);
 
   
   const drawRollScale = useCallback((g) => {

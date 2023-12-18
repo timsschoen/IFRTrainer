@@ -5,7 +5,7 @@ import './App.css';
 function App() {
   return (
     <Stage width={1000} height={1000} options={{ backgroundColor: 0x000 }}>
-      <AttitudeIndicator />
+      <AttitudeIndicator pitch={10} bank={20} slip={-5} />
     </Stage>
   );
 }
